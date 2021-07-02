@@ -1,25 +1,20 @@
 const Event = require("../models/Event");
-
+const asyncHandler = require("express-async-handler");
 // @route POST /event
-// @desc create an entry for the Event in the database
+// @desc create an entry for the Event
 // @access Private
 
-// Need the data in json foramt and date string should end with z
-// if not UTC time will be used as offset 
-const event = async (req, res) => {
-    const date = new Date(req.body.eventDate);
-    const eventRecord = new Event({
+// We need to send the eventDate with suffix "z" meaning zero time zone.
+const event = asyncHandler(async (req, res, next) => {
+    const eventDocument = new Event({
         userURL : req.body.userURL,
         eventDuration : req.body.eventDuration,
-        eventDate : date
+        eventDate : new Date(req.body.eventDate),
+        eventLink : req.body.eventLink
     });
-    try{
-        const savedPost = await eventRecord.save();
-        res.json(`Successfully created the event ${savedPost}`);
-    }catch(err){
-        res.json({message: err});
-    }
-    
-};
+
+    const savedPost = await eventDocument.save();
+    res.status(201).json(savedPost);
+});
 
 module.exports = event;
