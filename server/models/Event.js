@@ -13,9 +13,14 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  // eventTimeZone:{
-  //   type: Date,
-  // }
+  eventLink:{
+    type:String,
+    required: true
+  },
+  eventStatus: {
+    type: Boolean,
+    default: false
+  }
 });
 
 
