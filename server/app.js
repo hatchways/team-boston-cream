@@ -1,6 +1,8 @@
 const colors = require("colors");
+
 const path = require("path");
 const http = require("http");
+
 const express = require("express");
 const socketio = require("socket.io");
 const { notFound, errorHandler } = require("./middleware/error");
@@ -8,6 +10,13 @@ const connectDB = require("./db");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+
+const cors = require("cors");
+const cookieSession = require("cookie-session");
+
+// Passport
+const passport = require("passport");
+require("./config/passport-setup");
 
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
@@ -28,18 +37,30 @@ io.on("connection", (socket) => {
   console.log("connected");
 });
 
+// Development Middleware
 if (process.env.NODE_ENV === "development") {
   app.use(logger("dev"));
 }
+
+// Middleware
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
+app.use(cors({ credentials: true, origin: process.env.FRONT_END, optionsSuccessStatus: 200 }));
 
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
+
+app.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 1000,
+  keys: [process.env.OAUTH_SECRET]
+}))
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/auth", authRouter);
 app.use("/users", userRouter);

@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const passport = require('passport');
 const asyncHandler = require("express-async-handler");
 const generateToken = require("../utils/generateToken");
 
@@ -52,6 +53,26 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   }
 });
 
+// @route GET /auth/google
+// @desc Authorize user and obtain credentials
+// @access Public
+exports.googleAuth = passport.authenticate('google', {
+  scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/calendar.events', 'email' ],
+  accessType: 'offline'
+})
+
+
+// @route GET /auth/google/redirect
+// @desc Redirect user to either a success or failure screen
+// @access Public
+exports.googleRedirect = passport.authenticate('google', {
+    failureMessage: 'Cannot login to Google, please try again later',
+    failureRedirect: 'temp',
+    successRedirect: `${process.env.FRONT_END}/dashboard`
+  }), (req, res) => {
+    res.status(201)
+}
+
 // @route POST /auth/login
 // @desc Login user
 // @access Public
@@ -88,17 +109,25 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 // @desc Get user data with valid token
 // @access Private
 exports.loadUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  let user;
+  if(req.user.strategy === 'google') user = await User.findById(req.user._id);
+  else user = await User.findById(req.user.id);
 
+  // Send response to let the front end know the user is not logged in
   if (!user) {
     res.status(401);
     throw new Error("Not authorized");
   }
 
+  // alter user model for local user, right now they don't have a unique id besides the mongo id and that creates the issue where we would have to create
+  // alternate checks and solutions
+
+  // Before user info is sent to front end we must generate access token using the refresh token stored on the database
+
   res.status(200).json({
     success: {
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email
       }
