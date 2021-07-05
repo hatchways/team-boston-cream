@@ -14,7 +14,23 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    required: false
+  },
+  strategy: {
+    type: String,
     required: true
+  },
+  id: {
+    type: String,
+    required: false
+  },
+  picture: {
+    type: String,
+    required: false
+  },
+  refreshToken: {
+    type: String,
+    required: false
   },
   register_date: {
     type: Date,
