@@ -11,34 +11,51 @@ import AuthHeader from '../../components/AuthHeader/AuthHeader';
 import { useAuth } from '../../context/useAuthContext';
 import { useSnackBar } from '../../context/useSnackbarContext';
 
+import Button from '@material-ui/core/Button';
+
 export default function Register(): JSX.Element {
   const classes = useStyles();
   const { updateLoginContext } = useAuth();
   const { updateSnackBarMessage } = useSnackBar();
 
-  const handleSubmit = (
-    { username, email, password }: { email: string; password: string; username: string },
-    { setSubmitting }: FormikHelpers<{ email: string; password: string; username: string }>,
-  ) => {
-    register(username, email, password).then((data) => {
-      if (data.error) {
-        console.error({ error: data.error.message });
-        setSubmitting(false);
-        updateSnackBarMessage(data.error.message);
-      } else if (data.success) {
-        updateLoginContext(data.success);
-      } else {
-        // should not get here from backend but this catch is for an unknown issue
-        console.error({ data });
+  const { REACT_APP_BACK_END } = process.env;
 
-        setSubmitting(false);
-        updateSnackBarMessage('An unexpected error occurred. Please try again');
-      }
-    });
-  };
+  // const handleSubmit = (
+  //   { username, email, password }: { email: string; password: string; username: string },
+  //   { setSubmitting }: FormikHelpers<{ email: string; password: string; username: string }>,
+  // ) => {
+  //   register(username, email, password).then((data) => {
+  //     if (data.error) {
+  //       console.error({ error: data.error.message });
+  //       setSubmitting(false);
+  //       updateSnackBarMessage(data.error.message);
+  //     } else if (data.success) {
+  //       updateLoginContext(data.success);
+  //     } else {
+  //       // should not get here from backend but this catch is for an unknown issue
+  //       console.error({ data });
+
+  //       setSubmitting(false);
+  //       updateSnackBarMessage('An unexpected error occurred. Please try again');
+  //     }
+  //   });
+  // };
 
   return (
-    <Grid container component="main" className={classes.root}>
+    <div>
+      <Button className={classes.googleAuth} href={`${REACT_APP_BACK_END}/auth/google`}>
+        <img
+          className={classes.googleLogo}
+          alt="Google sign-in"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
+        />
+        Sign up with Google
+      </Button>
+    </div>
+  );
+}
+{
+  /* <Grid container component="main" className={classes.root}>
       <CssBaseline />
       <Grid item xs={12} sm={8} md={7} elevation={6} component={Paper} square>
         <Box className={classes.authWrapper}>
@@ -56,6 +73,5 @@ export default function Register(): JSX.Element {
           <Box p={1} alignSelf="center" />
         </Box>
       </Grid>
-    </Grid>
-  );
+    </Grid> */
 }
