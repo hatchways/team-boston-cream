@@ -7,10 +7,22 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import { AuthProvider } from './context/useAuthContext';
 import { SocketProvider } from './context/useSocketContext';
 import { SnackBarProvider } from './context/useSnackbarContext';
+import axios from 'axios';
 
 import './App.css';
 
 function App(): JSX.Element {
+  // Loading screen is initial view
+  // Than if there is a user store it in context and show them dashboard
+  // Otherwise show them a landing page for users that aren't logged in
+
+  const { REACT_APP_BACK_END } = process.env;
+
+  // Make this API call on load to determine what view should be rendered
+  // const getDetails = () => {
+  //   axios.get(`${REACT_APP_BACK_END}/auth/user`, { withCredentials: true }).then((res) => console.log(res.data));
+  // };
+
   return (
     <MuiThemeProvider theme={theme}>
       <BrowserRouter>
